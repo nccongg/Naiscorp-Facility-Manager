@@ -43,6 +43,29 @@ include_directories(include)
 # Source code
 set(SOURCES
     src/main.cpp
+    src/DatabaseManager.cpp
+    src/AuthController.cpp
+)
+
+# Tạo moc files thủ công (do AUTOMOC không hoạt động với cross-compile)
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moc_DatabaseManager.cpp
+    COMMAND /usr/bin/moc ${CMAKE_CURRENT_SOURCE_DIR}/include/DatabaseManager.h -o ${CMAKE_CURRENT_BINARY_DIR}/moc_DatabaseManager.cpp
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/DatabaseManager.h
+    COMMENT "Generating moc_DatabaseManager.cpp"
+)
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/moc_AuthController.cpp
+    COMMAND /usr/bin/moc ${CMAKE_CURRENT_SOURCE_DIR}/include/AuthController.h -o ${CMAKE_CURRENT_BINARY_DIR}/moc_AuthController.cpp
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/include/AuthController.h
+    COMMENT "Generating moc_AuthController.cpp"
+)
+
+# Thêm moc files vào sources
+list(APPEND SOURCES 
+    "${CMAKE_CURRENT_BINARY_DIR}/moc_DatabaseManager.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/moc_AuthController.cpp"
 )
 
 # Header có Q_OBJECT sẽ được AUTOMOC tự động xử lý
@@ -55,7 +78,7 @@ set(QRC_OUTPUT_FILE "${CMAKE_CURRENT_BINARY_DIR}/qrc_qml.cpp")
 add_custom_command(
     OUTPUT ${QRC_OUTPUT_FILE}
     COMMAND /usr/bin/rcc -o ${QRC_OUTPUT_FILE} ${QRC_SOURCE_FILE}
-    DEPENDS ${QRC_SOURCE_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/src/main.qml
+    DEPENDS ${QRC_SOURCE_FILE} ${CMAKE_CURRENT_SOURCE_DIR}/forms/Main.qml
     COMMENT "Generating qrc_qml.cpp from qml.qrc"
 )
 
@@ -66,8 +89,8 @@ add_executable(${PROJECT_NAME}
     ${SOURCES}
     ${QRC_SOURCES}  # Sử dụng QRC_SOURCES thay vì RESOURCES
     # Thêm header có Q_OBJECT vào đây nếu cần:
-    # include/MyClass.h
-    # include/OtherClass.h
+    include/DatabaseManager.h
+    include/AuthController.h
 )
 
 # Link Qt

@@ -1,5 +1,8 @@
 <RCC>
-    <qresource prefix="/">
-        <file alias="main.qml">main.qml</file>
-    </qresource>
+  <qresource prefix="/">
+    <file alias="Main.qml">../forms/Main.qml</file>
+    <file alias="Login.qml">../forms/Login.qml</file>
+    <file alias="Signup.qml">../forms/Signup.qml</file>
+    <file alias="Dashboard.qml">../forms/Dashboard.qml</file>
+  </qresource>
 </RCC>
