@@ -10,7 +10,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Tìm Qt5
+# Thêm Sql vào find_package (nếu có thể, dùng REQUIRED để fail sớm)
+# nếu môi trường cross của bạn đôi khi thiếu Qt5 Sql, dùng OPTIONAL rồi check TARGET như dưới.
 find_package(Qt5 REQUIRED COMPONENTS Core Gui Qml Quick QuickControls2)
+find_package(Qt5 COMPONENTS Sql)
+
+# Tìm Qt5 SQL module
+find_package(Qt5Sql REQUIRED)
 
 # Ép Qt tools chạy bản host
 set(Qt5Core_MOC_EXECUTABLE "/usr/bin/moc" CACHE FILEPATH "" FORCE)
@@ -30,9 +36,9 @@ endif()
 message(STATUS "Qt tools (host): moc=/usr/bin/moc rcc=/usr/bin/rcc uic=/usr/bin/uic")
 
 # Bật autogen
-set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOMOC OFF)  # Tắt AUTOMOC vì dùng custom commands cho cross-compile
 set(CMAKE_AUTORCC OFF)  # Tắt AUTORCC để compile manual
-set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC OFF)  # Tắt AUTOUIC vì dùng custom commands cho cross-compile
 
 # Tránh test chạy binary ARM khi configure
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
@@ -94,13 +100,17 @@ add_executable(${PROJECT_NAME}
 )
 
 # Link Qt
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt5::Core
     Qt5::Gui
     Qt5::Qml
     Qt5::Quick
     Qt5::QuickControls2
 )
+
+# Link Qt5::Sql
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt5::Sql)
+target_compile_definitions(${PROJECT_NAME} PRIVATE HAVE_QT_SQL)
 
 # Copy assets/forms khi build
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/assets")
